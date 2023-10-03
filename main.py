@@ -1,11 +1,19 @@
 import pandas as pd
 import io
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Depends
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 app = FastAPI()
 
+security = HTTPBasic()
 
-@app.post("/table")
+
+@app.get("/users/")
+def read_current_user(credentials: HTTPBasicCredentials = Depends(security)):
+    return {"username": credentials.username, "password": credentials.password}
+
+
+@app.post("/table", dependencies=[Depends(read_current_user)])
 async def upload_file(file: UploadFile = File(...)):
     contents = await file.read()
     file_obj = io.BytesIO(contents)
@@ -14,7 +22,7 @@ async def upload_file(file: UploadFile = File(...)):
     return {"filename": file.filename, "columns": columns}
 
 
-@app.post("/process")
+@app.post("/process", dependencies=[Depends(read_current_user)])
 async def process_file(file: UploadFile = File(...), filter_column: str = None, filter_value: str = None,
                        sort_columns: str = None):
     contents = await file.read()

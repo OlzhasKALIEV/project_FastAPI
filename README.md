@@ -8,6 +8,17 @@
 4. Установка зависимостей: pip install -r .\requirements.txt
 5. Запуск сервера: uvicorn main:app --reload
 
+Базовая авторизация пользователя
+
+GET: http://127.0.0.1:8000/users/
+
+Postman
+![img.png](media/img_8.png)
+
+Обработка в интерактивной документации API
+
+![img_1.png](media/img_9.png)
+
 Информация о столбцах 
 
 Обработка url в Postman
