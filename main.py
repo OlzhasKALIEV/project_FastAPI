@@ -1,6 +1,6 @@
 import pandas as pd
 import io
-from fastapi import FastAPI, UploadFile, File, Depends
+from fastapi import FastAPI, UploadFile, File, Depends, HTTPException
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
 
 app = FastAPI()
@@ -15,6 +15,9 @@ def read_current_user(credentials: HTTPBasicCredentials = Depends(security)):
 
 @app.post("/table", dependencies=[Depends(read_current_user)])
 async def upload_file(file: UploadFile = File(...)):
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Only CSV files are allowed")
+
     contents = await file.read()
     file_obj = io.BytesIO(contents)
     df = pd.read_csv(file_obj)
@@ -25,6 +28,9 @@ async def upload_file(file: UploadFile = File(...)):
 @app.post("/process", dependencies=[Depends(read_current_user)])
 async def process_file(file: UploadFile = File(...), filter_column: str = None, filter_value: str = None,
                        sort_columns: str = None):
+    if not file.filename.endswith(".csv"):
+        raise HTTPException(status_code=400, detail="Only CSV files are allowed")
+
     contents = await file.read()
     file_obj = io.BytesIO(contents)
     df = pd.read_csv(file_obj)
